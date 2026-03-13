@@ -78,8 +78,11 @@ export const StatsView: React.FC = () => {
       } catch (error) {
         console.error('=== ERROR FETCHING STATS ===');
         console.error('Error details:', error);
-        console.error('Error response:', error.response?.data);
-        console.error('Error status:', error.response?.status);
+        if (error && typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response?: { data?: unknown; status?: number } };
+          console.error('Error response:', axiosError.response?.data);
+          console.error('Error status:', axiosError.response?.status);
+        }
       } finally {
         setLoading(false);
       }
