@@ -22,7 +22,7 @@ export const ProfileSetup: React.FC = () => {
       await updateProfile({
         display_name: displayName,
         handicap_index: handicapIndex,
-        ghin_id: ghinId || null,
+        ghin_id: ghinId || '',
         phone_number: phone,
         date_of_birth: dateOfBirth || null,
       });
