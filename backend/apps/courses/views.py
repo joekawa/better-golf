@@ -114,7 +114,10 @@ class CourseSearchAPIView(APIView):
         return Response({
             'source': data.get('source'),
             'count': len(data.get('results', [])),
-            'results': data.get('results', [])
+            'results': data.get('results', []),
+            'fallback_reason': data.get('fallback_reason'),
+            'api_status_code': data.get('api_status_code'),
+            'message': data.get('message'),
         })
 
 

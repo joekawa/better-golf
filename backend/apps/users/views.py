@@ -11,7 +11,8 @@ from .serializers import (
     UserSerializer,
     ProfileSerializer,
     ChangePasswordSerializer,
-    HandicapHistorySerializer
+    HandicapHistorySerializer,
+    CustomTokenObtainPairSerializer
 )
 
 
@@ -36,6 +37,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 class UserLoginView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserLogoutView(APIView):
@@ -74,10 +76,12 @@ class CurrentUserProfileView(APIView):
     def put(self, request):
         try:
             profile = request.user.profile
+            print(f"Profile update request data: {request.data}")
             serializer = ProfileSerializer(profile, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
+            print(f"Profile serializer errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Profile.DoesNotExist:
             return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)

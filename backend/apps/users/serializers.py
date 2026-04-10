@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser, Profile, HandicapHistory
 
 
@@ -77,3 +78,7 @@ class HandicapHistorySerializer(serializers.ModelSerializer):
         model = HandicapHistory
         fields = ['id', 'handicap_index', 'calculation_date', 'rounds_count', 'differentials_used', 'created_at']
         read_only_fields = ['id', 'calculation_date', 'created_at']
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = CustomUser.USERNAME_FIELD

@@ -1,8 +1,12 @@
 import requests
+import logging
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
 from .models import Course, CourseTee, Hole
+
+
+logger = logging.getLogger(__name__)
 
 
 class GolfCourseAPIService:
@@ -11,12 +15,24 @@ class GolfCourseAPIService:
     API Documentation: https://api.golfcourseapi.com/docs/api/
     """
 
+    _config_logged = False
+
     def __init__(self):
         self.api_key = settings.GOLF_COURSE_API_KEY
         self.base_url = settings.GOLF_COURSE_API_URL
         self.headers = {
             'Authorization': f'Key {self.api_key}'
         }
+
+        if not GolfCourseAPIService._config_logged:
+            api_key_hint = f"{self.api_key[:4]}***" if self.api_key else 'missing'
+            logger.info(
+                'GolfCourseAPIService initialized (api_key_present=%s, api_key_hint=%s, base_url=%s)',
+                bool(self.api_key),
+                api_key_hint,
+                self.base_url,
+            )
+            GolfCourseAPIService._config_logged = True
 
     def search_courses(self, query, limit=20):
         """
@@ -43,14 +59,66 @@ class GolfCourseAPIService:
 
             return {
                 'source': 'api',
-                'results': self._format_courses_for_response(cached_courses)
+                'results': self._format_courses_for_response(cached_courses),
+                'fallback_reason': None,
+                'api_status_code': response.status_code,
+                'message': None,
             }
 
+        except requests.exceptions.Timeout as e:
+            logger.warning('Course API search timed out for query="%s": %s', query, str(e))
+            return self._search_local_database(
+                query,
+                limit,
+                fallback_reason='api_timeout',
+                message='External course API timed out. Showing cached results.',
+            )
+        except requests.exceptions.ConnectionError as e:
+            logger.warning('Course API search connection error for query="%s": %s', query, str(e))
+            return self._search_local_database(
+                query,
+                limit,
+                fallback_reason='api_unreachable',
+                message='External course API is unreachable. Showing cached results.',
+            )
+        except requests.exceptions.HTTPError as e:
+            status_code = e.response.status_code if e.response is not None else None
+            fallback_reason = 'api_unauthorized' if status_code in (401, 403) else 'api_error'
+            message = (
+                'External course API authentication failed. Showing cached results.'
+                if fallback_reason == 'api_unauthorized'
+                else 'External course API returned an error. Showing cached results.'
+            )
+            logger.warning(
+                'Course API search HTTP error for query="%s" (status=%s): %s',
+                query,
+                status_code,
+                str(e),
+            )
+            return self._search_local_database(
+                query,
+                limit,
+                fallback_reason=fallback_reason,
+                api_status_code=status_code,
+                message=message,
+            )
         except requests.exceptions.RequestException as e:
-            print(f"API search failed: {str(e)}. Falling back to database.")
-            return self._search_local_database(query, limit)
+            logger.warning('Course API search request exception for query="%s": %s', query, str(e))
+            return self._search_local_database(
+                query,
+                limit,
+                fallback_reason='api_error',
+                message='External course API request failed. Showing cached results.',
+            )
 
-    def _search_local_database(self, query, limit=20):
+    def _search_local_database(
+        self,
+        query,
+        limit=20,
+        fallback_reason='api_unavailable',
+        api_status_code=None,
+        message='Showing cached results.',
+    ):
         """
         Search local database for courses
 
@@ -69,7 +137,10 @@ class GolfCourseAPIService:
 
         return {
             'source': 'cache',
-            'results': self._format_courses_for_response(courses)
+            'results': self._format_courses_for_response(courses),
+            'fallback_reason': fallback_reason,
+            'api_status_code': api_status_code,
+            'message': message,
         }
 
     def _cache_courses(self, api_courses):

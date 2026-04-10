@@ -7,16 +7,99 @@ This guide covers deploying the Better Golf application to production. The appli
 - React Web Application (Frontend)
 - Expo Mobile Application (Mobile)
 
+Recommended production path in this guide: backend on Heroku Container Registry, frontend on Netlify, and an external managed PostgreSQL database.
+
 ## Prerequisites
 
 - Domain name configured with DNS
 - SSL certificate (Let's Encrypt recommended)
-- Server with Ubuntu 20.04+ or similar
-- PostgreSQL database
-- Node.js 18+ and Python 3.13+
+- Server with Ubuntu 20.04+ or similar (VM path only)
+- PostgreSQL database (external managed Postgres recommended)
+- Node.js 18+ and Python 3.13+ (mainly required for VM path)
 - Git access to repository
 
-## Backend Deployment (Django)
+---
+
+## Backend Deployment (Heroku Container Registry - Recommended)
+
+This is the recommended backend deployment path moving forward when using a Netlify frontend and an external managed PostgreSQL database.
+
+### 1. Prerequisites
+
+- Heroku app already created (backend only)
+- Heroku CLI installed and authenticated
+- Docker installed locally
+- External managed PostgreSQL connection URL
+- Netlify frontend URL(s) ready for CORS configuration
+
+### 2. Set Heroku Stack and Login to Container Registry
+
+```bash
+heroku login
+heroku container:login
+heroku stack:set container -a <HEROKU_APP_NAME>
+```
+
+### 3. Configure Heroku Environment Variables
+
+```bash
+heroku config:set SECRET_KEY='<strong-random-secret>' -a <HEROKU_APP_NAME>
+heroku config:set DEBUG=False -a <HEROKU_APP_NAME>
+heroku config:set ALLOWED_HOSTS='<HEROKU_APP_NAME>.herokuapp.com,<YOUR_API_DOMAIN>' -a <HEROKU_APP_NAME>
+heroku config:set DATABASE_URL='<EXTERNAL_MANAGED_POSTGRES_URL>' -a <HEROKU_APP_NAME>
+heroku config:set GOLF_COURSE_API_KEY='<YOUR_GOLF_COURSE_API_KEY>' -a <HEROKU_APP_NAME>
+heroku config:set GOLF_COURSE_API_URL='https://api.golfcourseapi.com' -a <HEROKU_APP_NAME>
+heroku config:set CORS_ALLOWED_ORIGINS='https://<YOUR_NETLIFY_SITE>.netlify.app,https://<YOUR_CUSTOM_FRONTEND_DOMAIN>' -a <HEROKU_APP_NAME>
+heroku config:set CORS_ALLOW_ALL_ORIGINS=False -a <HEROKU_APP_NAME>
+```
+
+### 4. Build, Push, and Release Backend Container
+
+From the repository root:
+
+```bash
+docker build -t registry.heroku.com/<HEROKU_APP_NAME>/web ./backend
+docker push registry.heroku.com/<HEROKU_APP_NAME>/web
+heroku container:release web -a <HEROKU_APP_NAME>
+```
+
+### 5. Run Migrations (Container Workflow)
+
+For container-based deploys, do not rely on the VM/Supervisor flow. Run migrations explicitly with Heroku:
+
+```bash
+heroku run python manage.py migrate -a <HEROKU_APP_NAME>
+```
+
+Note: the `backend/Procfile` release phase is part of the classic Heroku buildpack workflow; with container registry deployments, use explicit migration commands as part of your deployment runbook.
+
+### 6. Verify and Operate
+
+```bash
+# Check app status
+heroku ps -a <HEROKU_APP_NAME>
+
+# Stream logs
+heroku logs --tail -a <HEROKU_APP_NAME>
+
+# Quick API smoke test
+curl https://<HEROKU_APP_NAME>.herokuapp.com/api/
+```
+
+### 7. Rollback
+
+```bash
+heroku releases -a <HEROKU_APP_NAME>
+heroku rollback v<PREVIOUS_VERSION> -a <HEROKU_APP_NAME>
+```
+
+### 8. Netlify Frontend Integration
+
+- Set Netlify frontend environment variable `VITE_API_URL` to your Heroku backend API base URL (for example `https://<HEROKU_APP_NAME>.herokuapp.com/api`).
+- Ensure backend `CORS_ALLOWED_ORIGINS` includes every Netlify URL you serve from (default `.netlify.app` and any custom domain).
+- If your mobile app also hits the same backend, include those origins/hosts in your backend config as needed.
+
+## Alternative: VM Deployment Path (Django)
 
 ### 1. Server Setup
 
@@ -176,7 +259,7 @@ upstream bettergolf_backend {
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
-    
+
     # Redirect to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -184,17 +267,17 @@ server {
 server {
     listen 443 ssl http2;
     server_name yourdomain.com www.yourdomain.com;
-    
+
     # SSL Configuration (will be added by certbot)
     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-    
+
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
+
     # API endpoints
     location /api/ {
         proxy_pass http://bettergolf_backend;
@@ -204,7 +287,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_redirect off;
     }
-    
+
     # Admin panel
     location /admin/ {
         proxy_pass http://bettergolf_backend;
@@ -213,21 +296,21 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-    
+
     # Static files
     location /static/ {
         alias /var/www/bettergolf/backend/staticfiles/;
         expires 30d;
         add_header Cache-Control "public, immutable";
     }
-    
+
     # Media files
     location /media/ {
         alias /var/www/bettergolf/backend/media/;
         expires 30d;
         add_header Cache-Control "public, immutable";
     }
-    
+
     # Frontend (React app)
     location / {
         root /var/www/bettergolf/frontend/dist;
@@ -382,7 +465,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -398,23 +481,23 @@ jobs:
             python manage.py migrate
             python manage.py collectstatic --noinput
             sudo supervisorctl restart bettergolf
-            
+
   deploy-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
-          
+
       - name: Build frontend
         run: |
           cd frontend
           npm install
           npm run build
-          
+
       - name: Deploy to server
         uses: appleboy/scp-action@master
         with:
@@ -609,7 +692,7 @@ sudo systemctl restart nginx
 ### Platform as a Service (PaaS)
 
 #### Heroku
-- Easy deployment with git push
+- Use Heroku Container Registry workflow (see recommended backend section above)
 - Automatic SSL
 - Add-ons for PostgreSQL, Redis
 - Higher cost for production
@@ -629,7 +712,7 @@ sudo systemctl restart nginx
 ### Container Deployment
 
 #### Docker + Docker Compose
-See separate Docker deployment guide
+Use the canonical backend container workflow in `Backend Deployment (Heroku Container Registry - Recommended)` above.
 
 #### Kubernetes
 For large-scale deployments with high availability requirements

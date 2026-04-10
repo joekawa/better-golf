@@ -1,0 +1,35 @@
+services:
+  backend:
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DATABASE_URL: postgres://bettergolf:bettergolf@postgres:5432/bettergolf
+      ALLOWED_HOSTS: "*"
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost
+      CORS_ALLOW_ALL_ORIGINS: "False"
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      target: dev
+    command: sh -c "npm ci && npm i --no-save @rollup/rollup-linux-arm64-gnu && npm run dev -- --host 0.0.0.0 --port 5173"
+    environment:
+      VITE_API_URL: http://localhost/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  proxy:
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bettergolf
+      POSTGRES_USER: bettergolf
+      POSTGRES_PASSWORD: bettergolf
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_dev_data:
