@@ -21,7 +21,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, username: string, password: string, password2: string) => Promise<void>;
+  register: (email: string, password: string, password2: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -55,13 +55,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      const [userResponse, profileResponse] = await Promise.all([
-        api.get('/auth/me/'),
-        api.get('/auth/me/profile/')
-      ]);
-
+      const userResponse = await api.get('/auth/me/');
       setUser(userResponse.data);
-      setProfile(profileResponse.data);
+
+      try {
+        const profileResponse = await api.get('/auth/me/profile/');
+        setProfile(profileResponse.data);
+      } catch (profileError: unknown) {
+        const axiosError = profileError as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          setProfile(null);
+        } else {
+          throw profileError;
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
       await AsyncStorage.removeItem('access_token');
@@ -80,15 +87,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     const response = await api.post('/auth/login/', { email, password });
     const { access, refresh } = response.data;
-    
+
     await AsyncStorage.setItem('access_token', access);
     await AsyncStorage.setItem('refresh_token', refresh);
-    
+
     await refreshUser();
   };
 
-  const register = async (email: string, username: string, password: string, password2: string) => {
-    await api.post('/auth/register/', { email, username, password, password2 });
+  const register = async (email: string, password: string, password2: string) => {
+    await api.post('/auth/register/', { email, password, password2 });
     await login(email, password);
   };
 

@@ -1,11 +1,21 @@
-import { View, Text } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Index() {
-  return (
-    <View className="flex-1 items-center justify-center bg-secondary-50">
-      <Text className="text-4xl font-bold text-primary-600">Better Golf</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#16a34a" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <Redirect href="/login" />;
+  }
+
+  return <Redirect href="/(tabs)/dashboard" />;
 }
