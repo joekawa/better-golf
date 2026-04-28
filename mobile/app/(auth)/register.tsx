@@ -65,7 +65,7 @@ export default function RegisterScreen() {
             Create Account
           </Text>
           <Text className="text-base text-gray-600 mb-8 text-center">
-            Join Better Golf and start tracking your rounds
+            Join Grip Golf and start tracking your rounds
           </Text>
 
           <Input

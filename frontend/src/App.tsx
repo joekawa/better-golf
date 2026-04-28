@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { Dashboard } from './components/Dashboard';
+import { LandingPage } from './components/LandingPage';
 import { RoundsList } from './components/rounds/RoundsList';
 import { AddRound } from './components/rounds/AddRound';
 import { StatsView } from './components/stats/StatsView';
@@ -63,6 +64,8 @@ const Navigation: React.FC = () => {
 };
 
 function AppContent() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -109,7 +112,7 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingPage />} />
       </Routes>
     </div>
   );

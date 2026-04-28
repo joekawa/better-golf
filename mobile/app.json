@@ -1,7 +1,22 @@
 {
   "expo": {
-    "name": "Better Golf",
-    "slug": "better-golf",
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200
+        }
+      ]
+    ],
+    "name": "Grip Golf",
+    "slug": "grip-golf",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -10,10 +25,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bettergolf.app"
+      "bundleIdentifier": "com.gripgolf.app"
     },
     "android": {
-      "package": "com.bettergolf.app"
+      "package": "com.gripgolf.app"
     },
     "web": {}
   }
