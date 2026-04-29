@@ -745,3 +745,9 @@ For deployment issues:
 2. Review this deployment guide
 3. Consult Django and Nginx documentation
 4. Contact system administrator
+
+
+## Business Notes
+Checklist before launch
+1. Procure email address
+2. Build contact us page

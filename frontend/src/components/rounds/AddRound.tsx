@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { api } from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -263,11 +264,13 @@ export const AddRound: React.FC = () => {
         console.log('Full response:', roundResponse);
         console.log('Response data:', roundResponse.data);
         console.log('Round ID:', roundResponse.data?.id);
-      } catch (roundError: any) {
+      } catch (roundError: unknown) {
         console.error('=== ROUND CREATION FAILED ===');
         console.error('Error:', roundError);
-        console.error('Response data:', roundError.response?.data);
-        console.error('Status:', roundError.response?.status);
+        if (axios.isAxiosError(roundError)) {
+          console.error('Response data:', roundError.response?.data);
+          console.error('Status:', roundError.response?.status);
+        }
         throw roundError;
       }
 
@@ -286,11 +289,13 @@ export const AddRound: React.FC = () => {
       }
 
       navigate('/rounds');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('=== ERROR SAVING ROUND ===');
       console.error('Error:', error);
-      console.error('Response:', error.response?.data);
-      console.error('Status:', error.response?.status);
+      if (axios.isAxiosError(error)) {
+        console.error('Response:', error.response?.data);
+        console.error('Status:', error.response?.status);
+      }
       alert('Error saving round. Please try again.');
     } finally {
       setSaving(false);

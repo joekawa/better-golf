@@ -1,6 +1,6 @@
 ```mermaid
 mindmap
-  better-golf
+  gripgolf
     Play
       Rounds
        Score
@@ -47,4 +47,16 @@ mindmap
       Friends
       Score History
       Historical Stats
-```
+    Social
+      Contests
+       Tournaments
+       Match play
+      Leaderboards
+      Messages
+      Media
+       Photos
+       Videos
+       Audio
+      Friends
+      Groups
+      Challenges

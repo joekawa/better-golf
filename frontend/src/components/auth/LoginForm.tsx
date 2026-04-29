@@ -18,8 +18,10 @@ export const LoginForm: React.FC = () => {
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+    } catch (err: unknown) {
+      const detail =
+        err instanceof Error && (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      setError(detail || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -30,7 +32,7 @@ export const LoginForm: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
-            Sign in to Better Golf
+            Sign in to Grip Golf
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
