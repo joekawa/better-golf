@@ -7,12 +7,14 @@ export const LoginForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [unverified, setUnverified] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setUnverified(false);
     setLoading(true);
 
     try {
@@ -20,8 +22,13 @@ export const LoginForm: React.FC = () => {
       navigate('/dashboard');
     } catch (err: unknown) {
       const detail =
-        err instanceof Error && (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
-      setError(detail || 'Login failed. Please try again.');
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || '';
+      if (detail.toLowerCase().includes('verify your email')) {
+        setUnverified(true);
+        setError(detail);
+      } else {
+        setError(detail || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -37,8 +44,18 @@ export const LoginForm: React.FC = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
               {error}
+              {unverified && (
+                <div className="mt-2">
+                  <a
+                    href={`/verify-email-pending`}
+                    className="underline font-medium"
+                  >
+                    Resend verification email
+                  </a>
+                </div>
+              )}
             </div>
           )}
           <div className="space-y-4">

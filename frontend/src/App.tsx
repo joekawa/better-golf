@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
+import { EmailVerificationPending } from './components/auth/EmailVerificationPending';
+import { VerifyEmailPage } from './components/auth/VerifyEmailPage';
 import { Dashboard } from './components/Dashboard';
 import { LandingPage } from './components/LandingPage';
 import { RoundsList } from './components/rounds/RoundsList';
@@ -72,6 +74,8 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/verify-email-pending" element={<EmailVerificationPending />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route
           path="/profile/setup"
           element={

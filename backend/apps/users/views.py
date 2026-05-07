@@ -14,6 +14,7 @@ from .serializers import (
     HandicapHistorySerializer,
     CustomTokenObtainPairSerializer
 )
+from .email import send_verification_email, verify_token
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -26,12 +27,13 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
+        try:
+            send_verification_email(user, request)
+        except Exception as e:
+            print(f"[EMAIL ERROR] Failed to send verification email to {user.email}: {e}")
 
         return Response({
-            'user': UserSerializer(user).data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
+            'detail': 'Account created. Please check your email to verify your account.'
         }, status=status.HTTP_201_CREATED)
 
 
@@ -169,3 +171,58 @@ class HandicapHistoryViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
         return Response(result)
+
+
+class VerifyEmailView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'detail': 'Token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_id, error = verify_token(token)
+
+        if error == 'expired':
+            return Response({'detail': 'Verification link has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+        if error == 'invalid' or user_id is None:
+            return Response({'detail': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUser.objects.get(pk=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.email_verified:
+            return Response({'detail': 'Email already verified.'}, status=status.HTTP_200_OK)
+
+        user.email_verified = True
+        user.save()
+        print(f"[EMAIL VERIFY] Verified email for user {user.email}")
+        return Response({'detail': 'Email verified successfully. You can now log in.'}, status=status.HTTP_200_OK)
+
+
+class ResendVerificationView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'If an account exists, a verification email has been sent.'}, status=status.HTTP_200_OK)
+
+        if user.email_verified:
+            return Response({'detail': 'This email is already verified.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            send_verification_email(user, request)
+            print(f"[EMAIL] Resent verification email to {user.email}")
+        except Exception as e:
+            print(f"[EMAIL ERROR] Failed to resend verification email to {user.email}: {e}")
+            return Response({'detail': 'Failed to send verification email. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'detail': 'Verification email sent.'}, status=status.HTTP_200_OK)

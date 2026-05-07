@@ -8,7 +8,9 @@ from .views import (
     CurrentUserView,
     CurrentUserProfileView,
     ChangePasswordView,
-    HandicapHistoryViewSet
+    HandicapHistoryViewSet,
+    VerifyEmailView,
+    ResendVerificationView,
 )
 
 router = DefaultRouter()
@@ -22,5 +24,7 @@ urlpatterns = [
     path('me/', CurrentUserView.as_view(), name='current-user'),
     path('me/profile/', CurrentUserProfileView.as_view(), name='current-user-profile'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('verify-email/', VerifyEmailView.as_view(), name='verify-email'),
+    path('resend-verification/', ResendVerificationView.as_view(), name='resend-verification'),
     path('', include(router.urls)),
 ]

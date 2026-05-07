@@ -24,9 +24,11 @@ export const RegisterForm: React.FC = () => {
 
     try {
       await register(email, password, password2);
-      navigate('/dashboard');
+      navigate('/verify-email-pending', { state: { email } });
     } catch (err: unknown) {
-      const errorMessage = (err as { response?: { data?: { email?: string[] } } })?.response?.data?.email?.[0] || 'Registration failed. Please try again.';
+      const errorMessage = (err as { response?: { data?: { email?: string[]; detail?: string } } })?.response?.data?.email?.[0]
+        || (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        || 'Registration failed. Please try again.';
       setError(errorMessage);
     } finally {
       setLoading(false);

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from .models import CustomUser, Profile, HandicapHistory
 
 
@@ -82,3 +83,12 @@ class HandicapHistorySerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = CustomUser.USERNAME_FIELD
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if not self.user.email_verified:
+            raise AuthenticationFailed(
+                'Please verify your email address before logging in.',
+                code='email_not_verified'
+            )
+        return data
