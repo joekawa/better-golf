@@ -1,0 +1,461 @@
+##[debug]Evaluating condition for step: 'Deploy to server'
+##[debug]Evaluating: success()
+##[debug]Evaluating success:
+##[debug]=> true
+##[debug]Result: true
+##[debug]Starting: Deploy to server
+##[debug]Loading inputs
+##[debug]Evaluating: secrets.SERVER_HOST
+##[debug]Evaluating Index:
+##[debug]..Evaluating secrets:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'SERVER_HOST'
+##[debug]=> '***'
+##[debug]Result: '***'
+##[debug]Evaluating: secrets.SERVER_USER
+##[debug]Evaluating Index:
+##[debug]..Evaluating secrets:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'SERVER_USER'
+##[debug]=> '***'
+##[debug]Result: '***'
+##[debug]Evaluating: secrets.SSH_PRIVATE_KEY
+##[debug]Evaluating Index:
+##[debug]..Evaluating secrets:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'SSH_PRIVATE_KEY'
+##[debug]=> '***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***'
+##[debug]Result: '***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***'
+##[debug]Loading env
+Run appleboy/ssh-action@master
+##[debug]Evaluating: github.action_path
+##[debug]Evaluating Index:
+##[debug]..Evaluating github:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'action_path'
+##[debug]=> '/home/runner/work/_actions/appleboy/ssh-action/master'
+##[debug]Result: '/home/runner/work/_actions/appleboy/ssh-action/master'
+##[debug]Evaluating condition for step: 'run'
+##[debug]Evaluating: success()
+##[debug]Evaluating success:
+##[debug]=> true
+##[debug]Result: true
+##[debug]Starting: run
+##[debug]Loading inputs
+##[debug]Loading env
+Run echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+##[debug]/usr/bin/bash --noprofile --norc -e -o pipefail /home/runner/work/_temp/5a8d7b2f-12f5-4137-a94b-ac4c13b9093f.sh
+##[debug]Finished: run
+##[debug]Evaluating: github.action_path
+##[debug]Evaluating Index:
+##[debug]..Evaluating github:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'action_path'
+##[debug]=> '/home/runner/work/_actions/appleboy/ssh-action/master'
+##[debug]Result: '/home/runner/work/_actions/appleboy/ssh-action/master'
+##[debug]Evaluating: inputs.host
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'host'
+##[debug]=> '***'
+##[debug]Result: '***'
+##[debug]Evaluating: inputs.port
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'port'
+##[debug]=> '22'
+##[debug]Result: '22'
+##[debug]Evaluating: inputs.protocol
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'protocol'
+##[debug]=> 'tcp'
+##[debug]Result: 'tcp'
+##[debug]Evaluating: inputs.username
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'username'
+##[debug]=> '***'
+##[debug]Result: '***'
+##[debug]Evaluating: inputs.password
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'password'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.passphrase
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'passphrase'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.key
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'key'
+##[debug]=> '***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***'
+##[debug]Result: '***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***
+##[debug]***'
+##[debug]Evaluating: inputs.key_path
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'key_path'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.fingerprint
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'fingerprint'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_host
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_host'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_port
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_port'
+##[debug]=> '22'
+##[debug]Result: '22'
+##[debug]Evaluating: inputs.proxy_username
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_username'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_password
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_password'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_passphrase
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_passphrase'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_key
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_key'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_key_path
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_key_path'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_fingerprint
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_fingerprint'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.timeout
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'timeout'
+##[debug]=> '30s'
+##[debug]Result: '30s'
+##[debug]Evaluating: inputs.proxy_timeout
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_timeout'
+##[debug]=> '30s'
+##[debug]Result: '30s'
+##[debug]Evaluating: inputs.command_timeout
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'command_timeout'
+##[debug]=> '10m'
+##[debug]Result: '10m'
+##[debug]Evaluating: inputs.script
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'script'
+##[debug]=> 'cd /var/www/bettergolf
+##[debug]git pull origin main
+##[debug]cd backend
+##[debug]source venv/bin/activate
+##[debug]pip install -r requirements.txt
+##[debug]python manage.py migrate
+##[debug]python manage.py collectstatic --noinput
+##[debug]sudo supervisorctl restart bettergolf
+##[debug]'
+##[debug]Result: 'cd /var/www/bettergolf
+##[debug]git pull origin main
+##[debug]cd backend
+##[debug]source venv/bin/activate
+##[debug]pip install -r requirements.txt
+##[debug]python manage.py migrate
+##[debug]python manage.py collectstatic --noinput
+##[debug]sudo supervisorctl restart bettergolf
+##[debug]'
+##[debug]Evaluating: inputs.script_path
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'script_path'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.envs
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'envs'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.envs_format
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'envs_format'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.debug
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'debug'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.allenvs
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'allenvs'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.request_pty
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'request_pty'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.use_insecure_cipher
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'use_insecure_cipher'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.cipher
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'cipher'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_use_insecure_cipher
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_use_insecure_cipher'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.proxy_cipher
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'proxy_cipher'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.sync
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'sync'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating: inputs.capture_stdout
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'capture_stdout'
+##[debug]=> 'false'
+##[debug]Result: 'false'
+##[debug]Evaluating: inputs.curl_insecure
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'curl_insecure'
+##[debug]=> 'false'
+##[debug]Result: 'false'
+##[debug]Evaluating: inputs.version
+##[debug]Evaluating Index:
+##[debug]..Evaluating inputs:
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'version'
+##[debug]=> ''
+##[debug]Result: ''
+##[debug]Evaluating condition for step: 'run'
+##[debug]Evaluating: success()
+##[debug]Evaluating success:
+##[debug]=> true
+##[debug]Result: true
+##[debug]Starting: run
+##[debug]Loading inputs
+##[debug]Loading env
+Run entrypoint.sh
+  entrypoint.sh
+  shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+  env:
+    GITHUB_ACTION_PATH: /home/runner/work/_actions/appleboy/ssh-action/master
+    INPUT_HOST: ***
+    INPUT_PORT: 22
+    INPUT_PROTOCOL: tcp
+    INPUT_USERNAME: ***
+    INPUT_PASSWORD:
+    INPUT_PASSPHRASE:
+    INPUT_KEY: ***
+    INPUT_KEY_PATH:
+    INPUT_FINGERPRINT:
+    INPUT_PROXY_HOST:
+    INPUT_PROXY_PORT: 22
+    INPUT_PROXY_USERNAME:
+    INPUT_PROXY_PASSWORD:
+    INPUT_PROXY_PASSPHRASE:
+    INPUT_PROXY_KEY:
+    INPUT_PROXY_KEY_PATH:
+    INPUT_PROXY_FINGERPRINT:
+    INPUT_TIMEOUT: 30s
+    INPUT_PROXY_TIMEOUT: 30s
+    INPUT_COMMAND_TIMEOUT: 10m
+    INPUT_SCRIPT: cd /var/www/bettergolf
+  git pull origin main
+  cd backend
+  source venv/bin/activate
+  pip install -r requirements.txt
+  python manage.py migrate
+  python manage.py collectstatic --noinput
+  sudo supervisorctl restart bettergolf
+
+    INPUT_SCRIPT_FILE:
+    INPUT_ENVS:
+    INPUT_ENVS_FORMAT:
+    INPUT_DEBUG:
+    INPUT_ALL_ENVS:
+    INPUT_REQUEST_PTY:
+    INPUT_USE_INSECURE_CIPHER:
+    INPUT_CIPHER:
+    INPUT_PROXY_USE_INSECURE_CIPHER:
+    INPUT_PROXY_CIPHER:
+    INPUT_SYNC:
+    INPUT_CAPTURE_STDOUT: false
+    INPUT_CURL_INSECURE: false
+    DRONE_SSH_VERSION:
+##[debug]/usr/bin/bash --noprofile --norc -e -o pipefail /home/runner/work/_temp/7d9eb120-d9b3-42ff-a71a-0b64da049c8b.sh
+Downloading drone-ssh-1.8.2-linux-amd64 from https://github.com/appleboy/drone-ssh/releases/download/v1.8.2
+======= CLI Version Information =======
+Drone SSH version 1.8.2
+=======================================
+2026/05/09 12:42:10 dial tcp 98.84.224.111:22: i/o timeout
+Error: Process completed with exit code 1.
+##[debug]Finished: run
+##[debug]Evaluating: steps.entrypoint.outputs.stdout
+##[debug]Evaluating Index:
+##[debug]..Evaluating Index:
+##[debug]....Evaluating Index:
+##[debug]......Evaluating steps:
+##[debug]......=> Object
+##[debug]......Evaluating String:
+##[debug]......=> 'entrypoint'
+##[debug]....=> Object
+##[debug]....Evaluating String:
+##[debug]....=> 'outputs'
+##[debug]..=> Object
+##[debug]..Evaluating String:
+##[debug]..=> 'stdout'
+##[debug]=> null
+##[debug]Result: null
+##[debug]Finishing: Deploy to server
