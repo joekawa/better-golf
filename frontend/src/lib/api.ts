@@ -54,4 +54,10 @@ export const verifyEmail = (token: string) =>
 export const resendVerification = (email: string) =>
   api.post('/auth/resend-verification/', { email })
 
+export const requestPasswordReset = (email: string) =>
+  api.post('/auth/password-reset/', { email })
+
+export const confirmPasswordReset = (token: string, new_password: string, new_password2: string) =>
+  api.post('/auth/password-reset/confirm/', { token, new_password, new_password2 })
+
 export default api

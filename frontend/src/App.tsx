@@ -5,6 +5,8 @@ import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { EmailVerificationPending } from './components/auth/EmailVerificationPending';
 import { VerifyEmailPage } from './components/auth/VerifyEmailPage';
+import { ForgotPasswordPage } from './components/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './components/auth/ResetPasswordPage';
 import { Dashboard } from './components/Dashboard';
 import { LandingPage } from './components/LandingPage';
 import { RoundsList } from './components/rounds/RoundsList';
@@ -76,6 +78,8 @@ function AppContent() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/verify-email-pending" element={<EmailVerificationPending />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
           path="/profile/setup"
           element={

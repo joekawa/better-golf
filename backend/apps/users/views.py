@@ -12,9 +12,16 @@ from .serializers import (
     ProfileSerializer,
     ChangePasswordSerializer,
     HandicapHistorySerializer,
-    CustomTokenObtainPairSerializer
+    CustomTokenObtainPairSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
 )
-from .email import send_verification_email, verify_token
+from .email import (
+    send_verification_email,
+    verify_token,
+    send_password_reset_email,
+    verify_password_reset_token,
+)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -200,6 +207,59 @@ class VerifyEmailView(APIView):
         user.save()
         print(f"[EMAIL VERIFY] Verified email for user {user.email}")
         return Response({'detail': 'Email verified successfully. You can now log in.'}, status=status.HTTP_200_OK)
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        try:
+            user = CustomUser.objects.get(email=email)
+            send_password_reset_email(user, request)
+            print(f"[PASSWORD RESET] Sent reset email to {user.email}")
+        except CustomUser.DoesNotExist:
+            pass
+
+        return Response(
+            {'detail': 'If an account with that email exists, a password reset link has been sent.'},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        token = serializer.validated_data['token']
+        user_id, error = verify_password_reset_token(token)
+
+        if error == 'expired':
+            return Response({'detail': 'Reset link has expired. Please request a new one.'}, status=status.HTTP_400_BAD_REQUEST)
+        if error == 'invalid' or user_id is None:
+            return Response({'detail': 'Invalid reset link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUser.objects.get(pk=user_id)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(serializer.validated_data['new_password'])
+        if not user.email_verified:
+            user.email_verified = True
+            print(f"[PASSWORD RESET] Auto-verified email for {user.email} via password reset link")
+        user.save()
+        print(f"[PASSWORD RESET] Password reset successfully for {user.email}")
+
+        return Response({'detail': 'Password reset successfully. You can now log in.'}, status=status.HTTP_200_OK)
 
 
 class ResendVerificationView(APIView):

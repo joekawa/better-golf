@@ -1,17 +1,27 @@
 {
   "expo": {
+    "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#003030"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#003030"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#ffffff",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200
+          "backgroundColor": "#003030",
+          "image": "./assets/splash.png",
+          "imageWidth": 400
         }
       ]
     ],
@@ -26,10 +36,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gripgolf.app"
-    },
-    "android": {
-      "package": "com.gripgolf.app"
-    },
-    "web": {}
+    }
   }
 }
