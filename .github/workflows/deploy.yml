@@ -41,6 +41,8 @@ jobs:
           cd frontend
           npm install
           npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3
