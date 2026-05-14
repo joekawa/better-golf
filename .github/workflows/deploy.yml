@@ -46,6 +46,7 @@ jobs:
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: ./frontend/dist
+          netlify-config-dir: ./frontend
           production-branch: main
           production-deploy: true
         env:

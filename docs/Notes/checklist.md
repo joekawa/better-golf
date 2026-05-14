@@ -2,10 +2,10 @@
 
 ### Launch
 - [X] Email verification
-- [ ] Password reset
+- [X] Password reset
 - [ ] Contact us page
 - [ ] Terms and conditions
 - [ ] Privacy policy
 - [X] Change tab header name
-- [ ] Favicon
+- [X] Favicon
 - [X] Set up github actions
