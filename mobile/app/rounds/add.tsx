@@ -25,6 +25,10 @@ interface Tee {
   rating: string;
   slope: number;
   par: number;
+  front_course_rating?: number | null;
+  back_course_rating?: number | null;
+  front_slope_rating?: number | null;
+  back_slope_rating?: number | null;
 }
 
 interface Hole {
@@ -64,6 +68,7 @@ export default function AddRoundScreen() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [scoreType, setScoreType] = useState<'hole_by_hole' | 'total' | null>(null);
   const [scoreTypeId, setScoreTypeId] = useState<number | null>(null);
+  const [holeSegment, setHoleSegment] = useState<'full_18' | 'front_9' | 'back_9'>('full_18');
 
   // Hole-by-hole
   const [holes, setHoles] = useState<Hole[]>([]);
@@ -225,6 +230,12 @@ export default function AddRoundScreen() {
     }
   };
 
+  const getFilteredHoles = (allHoles: Hole[], segment: 'full_18' | 'front_9' | 'back_9'): Hole[] => {
+    if (segment === 'front_9') return allHoles.filter(h => h.hole_number <= 9);
+    if (segment === 'back_9') return allHoles.filter(h => h.hole_number >= 10);
+    return allHoles;
+  };
+
   const selectTee = async (tee: Tee) => {
     setSelectedTee(tee);
 
@@ -233,17 +244,6 @@ export default function AddRoundScreen() {
       const response = await api.get(`/holes/?tee_id=${tee.id}`);
       const holesData = response.data.results || response.data;
       setHoles(holesData);
-
-      // Initialize hole scores
-      const initialScores = holesData.map((hole: Hole) => ({
-        hole: hole.id,
-        strokes: 0,
-        putts: 0,
-        fairway_hit: false,
-        gir: false,
-      }));
-      setHoleScores(initialScores);
-
       setStep(3);
     } catch (error) {
       console.error('Error loading holes:', error);
@@ -261,8 +261,6 @@ export default function AddRoundScreen() {
 
       const scoreTypes = response.data.results || response.data;
 
-      // Find the ScoreType with the matching type value
-      // type=0 is TOTAL, type=1 is HOLE_BY_HOLE
       const targetType = type === 'hole_by_hole' ? 1 : 0;
       const scoreTypeObj = scoreTypes.find((st: any) => st.type === targetType);
 
@@ -282,7 +280,19 @@ export default function AddRoundScreen() {
       return;
     }
 
-    // Holes are already loaded in selectTee, just proceed to step 4
+    if (type === 'hole_by_hole') {
+      const filtered = getFilteredHoles(holes, holeSegment);
+      const initialScores = filtered.map((hole: Hole) => ({
+        hole: hole.id,
+        strokes: 0,
+        putts: 0,
+        fairway_hit: false,
+        gir: false,
+      }));
+      setHoleScores(initialScores);
+      setCurrentHoleIndex(0);
+    }
+
     setStep(4);
   };
 
@@ -313,9 +323,22 @@ export default function AddRoundScreen() {
 
   const calculateNetScore = (gross: number) => {
     if (!selectedTee || !profile?.handicap_index) return gross;
-    const courseHandicap = Math.round(
-      (parseFloat(profile.handicap_index) * selectedTee.slope) / 113
-    );
+    const handicapIndex = parseFloat(profile.handicap_index);
+
+    if (holeSegment !== 'full_18') {
+      const sideRating = holeSegment === 'front_9'
+        ? (selectedTee.front_course_rating ?? parseFloat(selectedTee.rating) / 2)
+        : (selectedTee.back_course_rating ?? parseFloat(selectedTee.rating) / 2);
+      const sideSlope = holeSegment === 'front_9'
+        ? (selectedTee.front_slope_rating ?? selectedTee.slope)
+        : (selectedTee.back_slope_rating ?? selectedTee.slope);
+      const nineHolePar = Math.round(selectedTee.par / 2);
+      const halfIndex = Math.round(handicapIndex / 2 * 10) / 10;
+      const courseHandicap = Math.round(halfIndex * (sideSlope / 113) + (sideRating - nineHolePar));
+      return gross - courseHandicap;
+    }
+
+    const courseHandicap = Math.round((handicapIndex * selectedTee.slope) / 113);
     return gross - courseHandicap;
   };
 
@@ -347,6 +370,8 @@ export default function AddRoundScreen() {
         course_tee: selectedTee?.id,
         date,
         score_type: scoreTypeId,
+        holes_played: holeSegment === 'full_18' ? 18 : 9,
+        hole_segment: holeSegment,
         timestamp: Date.now(),
       };
 
@@ -359,8 +384,9 @@ export default function AddRoundScreen() {
           );
         }
       } else {
-        roundData.hole_scores = holeScores.map(hs => ({
-          hole: hs.hole,
+        const filteredHoles = getFilteredHoles(holes, holeSegment);
+        roundData.hole_scores = holeScores.map((hs, i) => ({
+          hole: filteredHoles[i]?.id ?? hs.hole,
           score: hs.strokes,
           putts: hs.putts,
           fairway_hit: hs.fairway_hit,
@@ -553,7 +579,25 @@ export default function AddRoundScreen() {
                 placeholder="YYYY-MM-DD"
               />
 
-              <Text className="text-sm font-semibold text-gray-700 mb-3">Score Entry Method</Text>
+              <Text className="text-sm font-semibold text-gray-700 mb-3">Holes Played</Text>
+
+              {(['full_18', 'front_9', 'back_9'] as const).map((seg) => (
+                <TouchableOpacity
+                  key={seg}
+                  onPress={() => setHoleSegment(seg)}
+                  className={`p-4 border-2 rounded-lg mb-2 ${
+                    holeSegment === seg
+                      ? 'bg-green-50 border-green-600'
+                      : 'bg-gray-50 border-gray-300'
+                  }`}
+                >
+                  <Text className="font-semibold text-gray-900">
+                    {seg === 'full_18' ? '18 Holes' : seg === 'front_9' ? 'Front 9' : 'Back 9'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              <Text className="text-sm font-semibold text-gray-700 mb-3 mt-4">Score Entry Method</Text>
 
               <TouchableOpacity
                 onPress={() => selectScoreType('hole_by_hole')}
@@ -576,7 +620,7 @@ export default function AddRoundScreen() {
               </TouchableOpacity>
 
               <Button
-                title="← Back to Tee Selection"
+                title="Back to Tee Selection"
                 onPress={() => setStep(2)}
                 variant="text"
                 style={{ marginTop: 8 }}
@@ -585,25 +629,28 @@ export default function AddRoundScreen() {
           </View>
         )}
 
-        {step === 4 && scoreType === 'hole_by_hole' && holes[currentHoleIndex] && (
+        {step === 4 && scoreType === 'hole_by_hole' && getFilteredHoles(holes, holeSegment)[currentHoleIndex] && (
           <View className="p-4">
             <Card>
               <View className="mb-4">
+                <Text className="text-xs text-gray-500 text-center mb-1">
+                  {holeSegment === 'full_18' ? '18 Holes' : holeSegment === 'front_9' ? 'Front 9' : 'Back 9'}
+                </Text>
                 <Text className="text-lg font-bold text-gray-900 text-center">
-                  Hole {holes[currentHoleIndex].hole_number} of {holes.length}
+                  Hole {getFilteredHoles(holes, holeSegment)[currentHoleIndex].hole_number} of {getFilteredHoles(holes, holeSegment).length}
                 </Text>
                 <Text className="text-sm text-gray-600 text-center mt-1">
-                  Par {holes[currentHoleIndex].par} • {holes[currentHoleIndex].distance} yards
+                  Par {getFilteredHoles(holes, holeSegment)[currentHoleIndex].par} • {getFilteredHoles(holes, holeSegment)[currentHoleIndex].distance} yards
                 </Text>
               </View>
 
               <Text className="text-sm font-semibold text-gray-700 mb-2">Strokes</Text>
               <View className="flex-row flex-wrap mb-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                   <TouchableOpacity
                     key={num}
                     onPress={() => updateHoleScore('strokes', num)}
-                    className={`w-[22%] m-1 p-4 rounded-lg ${
+                    className={`w-[18%] m-1 p-3 rounded-lg ${
                       holeScores[currentHoleIndex]?.strokes === num
                         ? 'bg-green-600'
                         : 'bg-gray-200'
@@ -647,7 +694,7 @@ export default function AddRoundScreen() {
                 ))}
               </View>
 
-              {holes[currentHoleIndex].par !== 3 && (
+              {getFilteredHoles(holes, holeSegment)[currentHoleIndex].par !== 3 && (
                 <TouchableOpacity
                   onPress={() =>
                     updateHoleScore('fairway_hit', !holeScores[currentHoleIndex]?.fairway_hit)
@@ -689,7 +736,7 @@ export default function AddRoundScreen() {
                   disabled={currentHoleIndex === 0}
                   style={{ flex: 1 }}
                 />
-                {currentHoleIndex < holes.length - 1 ? (
+                {currentHoleIndex < getFilteredHoles(holes, holeSegment).length - 1 ? (
                   <Button
                     title="Next →"
                     onPress={nextHole}
@@ -714,6 +761,9 @@ export default function AddRoundScreen() {
           <View className="p-4">
             <Card>
               <Text className="text-xl font-bold text-gray-900 mb-4">Enter Total Score</Text>
+              <Text className="text-xs text-gray-500 mb-4">
+                {holeSegment === 'full_18' ? '18 Holes' : holeSegment === 'front_9' ? 'Front 9' : 'Back 9'}
+              </Text>
 
               <Input
                 label="Gross Score"
@@ -734,16 +784,16 @@ export default function AddRoundScreen() {
               </Text>
 
               <Input
-                label="Fairways Hit (out of 14)"
-                placeholder="0-14"
+                label={holeSegment === 'full_18' ? 'Fairways Hit (out of 14)' : 'Fairways Hit (out of 7)'}
+                placeholder={holeSegment === 'full_18' ? '0-14' : '0-7'}
                 value={manualStats.fairways_hit}
                 onChangeText={(val) => setManualStats({ ...manualStats, fairways_hit: val })}
                 keyboardType="numeric"
               />
 
               <Input
-                label="Greens in Regulation (out of 18)"
-                placeholder="0-18"
+                label={holeSegment === 'full_18' ? 'Greens in Regulation (out of 18)' : 'Greens in Regulation (out of 9)'}
+                placeholder={holeSegment === 'full_18' ? '0-18' : '0-9'}
                 value={manualStats.greens_in_regulation}
                 onChangeText={(val) =>
                   setManualStats({ ...manualStats, greens_in_regulation: val })

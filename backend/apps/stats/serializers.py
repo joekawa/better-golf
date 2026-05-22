@@ -98,7 +98,7 @@ class StatsCreateSerializer(serializers.ModelSerializer):
         if round_instance:
             total_holes_in_round = round_instance.hole_scores.count()
             if total_holes_in_round == 0:
-                total_holes_in_round = 18
+                total_holes_in_round = getattr(round_instance, 'holes_played', 18)
 
             par_3_count = round_instance.hole_scores.filter(hole__par=3).count()
             driving_holes = total_holes_in_round - par_3_count
@@ -113,11 +113,17 @@ class StatsCreateSerializer(serializers.ModelSerializer):
                     f"Greens in regulation ({gir}) cannot exceed total holes ({total_holes_in_round})"
                 )
 
-        total_scoring_holes = eagles + birdies + pars + bogeys + double_bogeys
-        if total_scoring_holes > 18:
-            raise serializers.ValidationError(
-                "Total of eagles, birdies, pars, bogeys, and double bogeys cannot exceed 18"
-            )
+            total_scoring_holes = eagles + birdies + pars + bogeys + double_bogeys
+            if total_scoring_holes > total_holes_in_round:
+                raise serializers.ValidationError(
+                    f"Total of eagles, birdies, pars, bogeys, and double bogeys cannot exceed {total_holes_in_round}"
+                )
+        else:
+            total_scoring_holes = eagles + birdies + pars + bogeys + double_bogeys
+            if total_scoring_holes > 18:
+                raise serializers.ValidationError(
+                    "Total of eagles, birdies, pars, bogeys, and double bogeys cannot exceed 18"
+                )
 
         return attrs
 

@@ -11,16 +11,21 @@ class HoleSerializer(serializers.ModelSerializer):
 
 class CourseTeeSerializer(serializers.ModelSerializer):
     holes = HoleSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = CourseTee
-        fields = ['id', 'name', 'slope', 'rating', 'par', 'handicap', 'holes', 'created_at', 'updated_at']
+        fields = [
+            'id', 'name', 'slope', 'rating', 'par', 'handicap',
+            'front_course_rating', 'back_course_rating',
+            'front_slope_rating', 'back_slope_rating',
+            'holes', 'created_at', 'updated_at'
+        ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class CourseSerializer(serializers.ModelSerializer):
     tees = CourseTeeSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = Course
         fields = ['id', 'name', 'city', 'state', 'address', 'country', 'tees', 'created_at', 'updated_at']
@@ -35,7 +40,11 @@ class CourseListSerializer(serializers.ModelSerializer):
 
 class CourseTeeListSerializer(serializers.ModelSerializer):
     course_name = serializers.CharField(source='course.name', read_only=True)
-    
+
     class Meta:
         model = CourseTee
-        fields = ['id', 'course_name', 'name', 'slope', 'rating', 'par']
+        fields = [
+            'id', 'course_name', 'name', 'slope', 'rating', 'par',
+            'front_course_rating', 'back_course_rating',
+            'front_slope_rating', 'back_slope_rating'
+        ]

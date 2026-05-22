@@ -19,6 +19,10 @@ interface Tee {
   rating: string;
   slope: number;
   par: number;
+  front_course_rating?: number | null;
+  back_course_rating?: number | null;
+  front_slope_rating?: number | null;
+  back_slope_rating?: number | null;
 }
 
 interface Hole {
@@ -67,6 +71,7 @@ export const AddRound: React.FC = () => {
   const [holeScores, setHoleScores] = useState<HoleScore[]>([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [holeSegment, setHoleSegment] = useState<'full_18' | 'front_9' | 'back_9'>('full_18');
   const [scoreTypes, setScoreTypes] = useState<Array<{id: number; type: number}>>([]);
   const [pendingHandicap, setPendingHandicap] = useState<{
     current_handicap: number | null;
@@ -130,6 +135,12 @@ export const AddRound: React.FC = () => {
     }
   };
 
+  const getFilteredHoles = (allHoles: Hole[], segment: 'full_18' | 'front_9' | 'back_9'): Hole[] => {
+    if (segment === 'front_9') return allHoles.filter(h => h.hole_number <= 9);
+    if (segment === 'back_9') return allHoles.filter(h => h.hole_number >= 10);
+    return allHoles;
+  };
+
   const selectTee = async (tee: Tee) => {
     setSelectedTee(tee);
     try {
@@ -159,8 +170,9 @@ export const AddRound: React.FC = () => {
       setScoreTypeId(scoreTypeObj.id);
     }
     if (type === 1 && holes.length > 0) {
-      console.log('Initializing hole scores with holes:', holes);
-      const initialScores = holes.map(hole => ({
+      const filtered = getFilteredHoles(holes, holeSegment);
+      console.log('Initializing hole scores with filtered holes:', filtered);
+      const initialScores = filtered.map(hole => ({
         hole: hole.id,
         strokes: 0,
         putts: 0,
@@ -183,9 +195,21 @@ export const AddRound: React.FC = () => {
     if (!profile || !selectedTee) return gross;
 
     const handicapIndex = parseFloat(profile.handicap_index);
-    const slope = selectedTee.slope;
 
-    const courseHandicap = Math.round((handicapIndex * slope) / 113);
+    if (holeSegment !== 'full_18') {
+      const sideRating = holeSegment === 'front_9'
+        ? (selectedTee.front_course_rating ?? parseFloat(selectedTee.rating) / 2)
+        : (selectedTee.back_course_rating ?? parseFloat(selectedTee.rating) / 2);
+      const sideSlope = holeSegment === 'front_9'
+        ? (selectedTee.front_slope_rating ?? selectedTee.slope)
+        : (selectedTee.back_slope_rating ?? selectedTee.slope);
+      const nineHolePar = Math.round(selectedTee.par / 2);
+      const halfIndex = Math.round(handicapIndex / 2 * 10) / 10;
+      const courseHandicap = Math.round(halfIndex * (sideSlope / 113) + (sideRating - nineHolePar));
+      return gross - courseHandicap;
+    }
+
+    const courseHandicap = Math.round((handicapIndex * selectedTee.slope) / 113);
     return gross - courseHandicap;
   };
 
@@ -229,6 +253,8 @@ export const AddRound: React.FC = () => {
         course_tee: number | undefined;
         date: string;
         score_type: number | null;
+        holes_played: number;
+        hole_segment: string;
         gross_score?: number;
         net_score?: number;
         hole_scores?: Array<{ hole: number; score: number; putts: number; fairway_hit: boolean; gir: boolean }>;
@@ -236,7 +262,9 @@ export const AddRound: React.FC = () => {
         course: selectedCourse?.id,
         course_tee: selectedTee?.id,
         date,
-        score_type: scoreTypeId
+        score_type: scoreTypeId,
+        holes_played: holeSegment === 'full_18' ? 18 : 9,
+        hole_segment: holeSegment
       };
 
       if (scoreType === 0) {
@@ -422,6 +450,29 @@ export const AddRound: React.FC = () => {
 
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Holes Played
+            </label>
+            <div className="space-y-2">
+              {(['full_18', 'front_9', 'back_9'] as const).map((seg) => (
+                <button
+                  key={seg}
+                  onClick={() => setHoleSegment(seg)}
+                  className={`w-full text-left p-4 border-2 rounded-md ${
+                    holeSegment === seg
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+                  }`}
+                >
+                  <div className="font-semibold text-gray-900">
+                    {seg === 'full_18' ? '18 Holes' : seg === 'front_9' ? 'Front 9' : 'Back 9'}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
               Score Type
             </label>
             <div className="space-y-2">
@@ -446,7 +497,7 @@ export const AddRound: React.FC = () => {
             onClick={() => setStep(2)}
             className="px-4 py-2 text-gray-600 hover:text-gray-900"
           >
-            ← Back to Tee Selection
+            Back to Tee Selection
           </button>
         </div>
       )}
@@ -582,9 +633,12 @@ export const AddRound: React.FC = () => {
       {step === 4 && scoreType === 1 && (
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Enter Hole-by-Hole Scores</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            {holeSegment === 'full_18' ? '18 Holes' : holeSegment === 'front_9' ? 'Front 9 (Holes 1-9)' : 'Back 9 (Holes 10-18)'}
+          </p>
 
           <div className="space-y-4 mb-6">
-            {holes.map((hole, index) => (
+            {getFilteredHoles(holes, holeSegment).map((hole, index) => (
               <div key={hole.id} className="border border-gray-300 rounded-md p-4">
                 <div className="flex justify-between items-center mb-3">
                   <div>
@@ -682,6 +736,7 @@ export const AddRound: React.FC = () => {
               <p><span className="font-semibold">Tee:</span> {selectedTee?.name}</p>
               <p><span className="font-semibold">Date:</span> {date}</p>
               <p><span className="font-semibold">Score Type:</span> {scoreType === 0 ? 'Total Score' : 'Hole-by-Hole'}</p>
+              <p><span className="font-semibold">Holes:</span> {holeSegment === 'full_18' ? '18 Holes' : holeSegment === 'front_9' ? 'Front 9' : 'Back 9'}</p>
 
               {scoreType === 0 && (
                 <>

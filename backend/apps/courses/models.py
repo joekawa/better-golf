@@ -25,6 +25,10 @@ class CourseTee(BaseModel):
     rating = models.DecimalField(max_digits=4, decimal_places=1)
     par = models.IntegerField()
     handicap = models.IntegerField(null=True, blank=True)
+    front_course_rating = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    back_course_rating = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    front_slope_rating = models.IntegerField(null=True, blank=True)
+    back_slope_rating = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.course.name} - {self.name} Tees"

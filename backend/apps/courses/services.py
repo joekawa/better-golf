@@ -266,8 +266,13 @@ class GolfCourseAPIService:
                     'rating': tee_data.get('course_rating', 72.0),
                     'par': tee_data.get('par_total', 72),
                     'handicap': tee_data.get('handicap'),
+                    'front_course_rating': tee_data.get('front_course_rating'),
+                    'back_course_rating': tee_data.get('back_course_rating'),
+                    'front_slope_rating': tee_data.get('front_slope_rating'),
+                    'back_slope_rating': tee_data.get('back_slope_rating'),
                 }
             )
+            print(f"Tee {'created' if tee_created else 'updated'}: {tee.name} | front_rating={tee.front_course_rating} back_rating={tee.back_course_rating}")
 
             holes_data = tee_data.get('holes', [])
             for index, hole_data in enumerate(holes_data, start=1):

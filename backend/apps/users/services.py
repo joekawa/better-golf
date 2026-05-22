@@ -13,7 +13,8 @@ class HandicapCalculationService:
         """
         Calculate score differential for a single round.
 
-        Formula: (gross_score - course_rating) * 113 / slope_rating
+        18-hole formula: (gross_score - course_rating) * 113 / slope_rating
+        9-hole formula:  (gross_score - side_rating) * 113 / side_slope
 
         Args:
             round_instance: Round object
@@ -27,14 +28,28 @@ class HandicapCalculationService:
                 return None
 
             gross_score = round_instance.score.gross_score
-
-            # Get course rating and slope
             course_tee = round_instance.course_tee
+
             if course_tee.rating is None or course_tee.slope is None:
                 return None
 
-            rating = float(course_tee.rating)
-            slope = float(course_tee.slope)
+            holes_played = getattr(round_instance, 'holes_played', 18)
+            hole_segment = getattr(round_instance, 'hole_segment', 'full_18')
+
+            if holes_played == 9:
+                if hole_segment == 'front_9':
+                    rating = float(course_tee.front_course_rating or course_tee.rating / 2)
+                    slope = float(course_tee.front_slope_rating or course_tee.slope)
+                    if not course_tee.front_course_rating:
+                        print(f"[HANDICAP] Warning: front_course_rating missing for tee {course_tee.id}, using estimate")
+                else:
+                    rating = float(course_tee.back_course_rating or course_tee.rating / 2)
+                    slope = float(course_tee.back_slope_rating or course_tee.slope)
+                    if not course_tee.back_course_rating:
+                        print(f"[HANDICAP] Warning: back_course_rating missing for tee {course_tee.id}, using estimate")
+            else:
+                rating = float(course_tee.rating)
+                slope = float(course_tee.slope)
 
             # Calculate differential
             differential = (gross_score - rating) * 113 / slope
