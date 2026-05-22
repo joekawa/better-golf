@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 
@@ -105,10 +106,17 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900">Recent Rounds</h2>
+        <Link
+          to="/rounds/add"
+          className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Add Round
+        </Link>
+      </div>
+
       <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Recent Rounds</h2>
-        </div>
         <div className="divide-y divide-gray-200">
           {recentRounds.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">

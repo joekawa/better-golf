@@ -26,6 +26,11 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
+      - name: Run database migrations
+        run: heroku run "python manage.py migrate --noinput" --app ${{ secrets.HEROKU_APP_NAME }}
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
   deploy-frontend:
     runs-on: ubuntu-latest
     steps:
