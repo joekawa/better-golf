@@ -1,15 +1,26 @@
 {
   "expo": {
+    "name": "Grip Golf",
+    "slug": "grip-golf",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#003030"
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gripgolf.app"
     },
     "android": {
+      "package": "com.gripgolf.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#003030"
+        "backgroundColor": "#062f2d"
       }
     },
     "web": {
@@ -19,23 +30,14 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#003030",
+          "backgroundColor": "#062f2d",
           "image": "./assets/splash.png",
           "imageWidth": 400
         }
       ]
     ],
-    "name": "Grip Golf",
-    "slug": "grip-golf",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.gripgolf.app"
+    "extra": {
+      "apiUrl": "https://https://better-golf-api-51472a2ac876.herokuapp.com/api/"
     }
   }
 }

@@ -13,6 +13,7 @@ import { RoundsList } from './components/rounds/RoundsList';
 import { AddRound } from './components/rounds/AddRound';
 import { StatsView } from './components/stats/StatsView';
 import { ProfileSetup } from './components/profile/ProfileSetup';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading, profileIncomplete } = useAuth();
@@ -80,6 +81,7 @@ function AppContent() {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route
           path="/profile/setup"
           element={

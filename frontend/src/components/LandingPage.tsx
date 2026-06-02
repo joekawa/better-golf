@@ -52,7 +52,7 @@ export const LandingPage: React.FC = () => {
               <span className="text-primary-200">Improve Your Game.</span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-primary-100 max-w-2xl mx-auto">
-              Grip Golf helps you log rounds, analyze statistics, and track your handicap. 
+              Grip Golf helps you log rounds, analyze statistics, and track your handicap.
               Turn your golf data into insights that lower your scores.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -134,10 +134,13 @@ export const LandingPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-gray-50 py-8 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-2">
           <p className="text-center text-sm text-gray-500">
             © {new Date().getFullYear()} Grip Golf. All rights reserved.
           </p>
+          <Link to="/privacy" className="text-xs text-gray-400 hover:text-gray-600 underline">
+            Privacy Policy
+          </Link>
         </div>
       </footer>
     </div>

@@ -385,65 +385,96 @@ export default defineConfig({
 
 ---
 
-## Mobile Deployment (Expo)
+## Mobile Deployment (Expo / EAS)
 
-### 1. Configure App
+The mobile app is **Grip Golf** — an Expo (React Native) app targeting iOS and Android via EAS Build.
 
-Update `mobile/app.json`:
+### 1. Prerequisites
+
+- [Expo account](https://expo.dev) created and CLI installed
+- EAS CLI installed: `npm install -g eas-cli`
+- Apple Developer account (for iOS)
+- Google Play Console account (for Android)
+- Production backend URL available
+
+### 2. Install EAS CLI & Login
+
+```bash
+npm install -g eas-cli
+eas login
+```
+
+### 3. Configure Production API URL
+
+In `mobile/app.json`, update the `extra.apiUrl` field to your production backend:
 
 ```json
-{
-  "expo": {
-    "name": "Better Golf",
-    "slug": "better-golf",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.yourdomain.bettergolf"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      },
-      "package": "com.yourdomain.bettergolf"
-    },
-    "extra": {
-      "apiUrl": "https://yourdomain.com/api"
-    }
-  }
+"extra": {
+  "apiUrl": "https://YOUR_BACKEND_URL/api"
 }
 ```
 
-### 2. Build for iOS
+Also ensure `EXPO_PUBLIC_API_URL` is set in `mobile/.env` for any local builds.
+
+### 4. Configure EAS Build (`mobile/eas.json`)
+
+The `eas.json` file is already created at `mobile/eas.json`. Before building for production, update the `submit.production` section with your credentials:
+
+- **iOS:** `appleId`, `ascAppId`, `appleTeamId`
+- **Android:** Path to your Google Play service account JSON key
+
+### 5. Initialize EAS Project (First Time Only)
 
 ```bash
 cd mobile
-eas build --platform ios
+eas init
 ```
 
-Follow the prompts and submit to App Store Connect.
+This links the project to your Expo account and sets `extra.eas.projectId` in `app.json`.
 
-### 3. Build for Android
+### 6. Build for iOS
 
 ```bash
-eas build --platform android
+cd mobile
+eas build --platform ios --profile production
 ```
 
-Follow the prompts and submit to Google Play Console.
+Follow the prompts (code signing, provisioning profiles). Submit to App Store Connect:
+
+```bash
+eas submit --platform ios --profile production
+```
+
+### 7. Build for Android
+
+```bash
+cd mobile
+eas build --platform android --profile production
+```
+
+Submit to Google Play Console (internal track initially):
+
+```bash
+eas submit --platform android --profile production
+```
+
+### 8. App Store Preparation Checklist
+
+Before submitting to app stores:
+
+- [ ] App icons in all required sizes (use `./assets/icon.png` — 1024x1024)
+- [ ] Splash screen image (`./assets/splash.png`)
+- [ ] App Store screenshots (iPhone 6.7", 6.5", 5.5"; iPad if applicable)
+- [ ] Google Play screenshots (phone, 7" tablet, 10" tablet)
+- [ ] App description and keywords written
+- [ ] Privacy policy URL ready
+- [ ] App category selected (Sports)
+- [ ] Age rating completed
+- [ ] `bundleIdentifier` confirmed: `com.gripgolf.app`
+- [ ] `android.package` confirmed: `com.gripgolf.app`
+- [ ] Production API URL set in `app.json` `extra.apiUrl`
+- [ ] All TypeScript errors resolved
+- [ ] Tested on physical iOS and Android devices
 
 ---
 
