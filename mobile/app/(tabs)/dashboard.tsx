@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../lib/api';
 import { Button } from '../../components/shared/Button';
